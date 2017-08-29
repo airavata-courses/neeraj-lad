@@ -10,8 +10,10 @@
 $id = $_GET['id'];
 
 $servername = '127.0.0.1';
-$username = 'root';
-$password = 'admin';
+
+//Add your MySQL credentials here
+$username = '';
+$password = '';
 $dbname = 'sga-neeraj-lad-asgn1';
 
 $conn = new mysqli($servername, $username, $password, $dbname);
