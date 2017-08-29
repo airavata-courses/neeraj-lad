@@ -1,9 +1,11 @@
+"""
 /*
  * Source:
  * http://flask.pocoo.org/docs/0.12/quickstart/#a-minimal-application
  * Microservice2 (ms2.py) listens on port 5000. It connects to Microservice3 (ms3.php) which listens on port 9080.
  *
  */
+"""
 
 from flask import Flask
 import urllib.request
