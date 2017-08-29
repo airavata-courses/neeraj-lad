@@ -1,6 +1,7 @@
-/*Source:
- *http://restify.com/docs/home/
- *Gateway runs on port 7080. It connects to the first microservice ms1.js which runs on port 8080
+/*
+ * Source:
+ * http://restify.com/docs/home/
+ * Gateway (gateway.js) listens on port 7080. It connects to the Microservice1 (ms1.js) which listens on port 8080.
  */
 
 var restify = require('restify');
