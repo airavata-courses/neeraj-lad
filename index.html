@@ -11,7 +11,43 @@
     <!-- Bootstrap core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles for this template -->
-    <link href="narrow-jumbotron.css" rel="stylesheet">
+
+	<script type="text/javascript">
+		function get() {
+			var host = "http://localhost";
+			var port = 7080;
+			var path = document.getElementById("id").value;
+			var url = host + ":" + port + "/" + path;
+			var xmlhttp = new XMLHttpRequest();
+			var responseTextArea = document.getElementById("response");
+			xmlhttp.onreadystatechange = function(){
+				console.log(xmlhttp.readyState);
+				if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+					console.log(xmlhttp.responseText);
+					if (xmlhttp.status == 200)	responseTextArea.innerHTML = convertToTable(xmlhttp.responseText);	
+					else if (xmlhttp.status == 400)	responseTextArea.innerHTML = "Error 400";
+					else	responseTextArea.innerHTML = "Unexpected error";
+				}
+			}
+			xmlhttp.open("GET", url, true);
+			xmlhttp.send();
+		}
+
+		function convertToTable(output) {
+			var html = "";
+			var column = output.split(",");
+			for (var i = 0; i < column.length - 1; i++) {
+				var pair = column[i].split(":");
+				html += "<b>";
+				html += pair[0];
+				html += "</b>";
+				html += ": ";
+				html += pair[1];
+				if (i < column.length - 2)	html += ", ";
+			}
+			return html;
+		}
+	</script>
   </head>
 
   <body>
@@ -22,14 +58,19 @@
       <div class="jumbotron">
         <h1 class="display-3">IMDB Top 10</h1>
 		<p>Enter any number <i>'i'</i> between 1 and 10 inclusive. This app retrieves information like Rating, Name and Number of Reviews for the movie ranked <i>'i'</i> in the IMDB Top 10 list.</p>
-		<form action="http://localhost:7080/" method="get">
-			<div class="form-group">
-				<label for="rank">Rank</label><br>
-				<input name="id" id="id" value=1>
+		<div class="row">
+		  <div class="col-lg-6">
+			<div class="input-group">
+				<input id="id" value=1 type="number" class="form-control" placeholder="Search by Rank..." aria-label="Search for...">
+				 <span class="input-group-btn">
+					<button onclick="javascript:get();" class="btn btn-success" type="button">Go!</button>
+				  </span>
 			</div>
-			<button type="submit" class="btn btn-lg btn-success">Submit</button>
-		</form>
-      </div>
+			<br>
+			<div class="form-control" id="response" rows="3"></div>
+		  </div>
+	  </div>
+	  </div>
 
       <footer class="footer">
         <p>&copy; Neeraj Lad  2017</p>
