@@ -14,36 +14,36 @@
 
 	<script type="text/javascript">
 		function get() {
-			var host = "http://localhost";
+			var host = 'http://localhost';
 			var port = 7080;
-			var path = document.getElementById("id").value;
-			var url = host + ":" + port + "/" + path;
+			var path = document.getElementById('id').value;
+			var url = host + ':' + port + '/' + path;
 			var xmlhttp = new XMLHttpRequest();
-			var responseTextArea = document.getElementById("response");
+			var responseTextArea = document.getElementById('response');
 			xmlhttp.onreadystatechange = function(){
 				console.log(xmlhttp.readyState);
 				if (xmlhttp.readyState == XMLHttpRequest.DONE) {
 					console.log(xmlhttp.responseText);
 					if (xmlhttp.status == 200)	responseTextArea.innerHTML = convertToTable(xmlhttp.responseText);	
-					else if (xmlhttp.status == 400)	responseTextArea.innerHTML = "Error 400";
-					else	responseTextArea.innerHTML = "Unexpected error";
+					else if (xmlhttp.status == 400)	responseTextArea.innerHTML = 'Error 400';
+					else	responseTextArea.innerHTML = 'Unexpected error';
 				}
 			}
-			xmlhttp.open("GET", url, true);
+			xmlhttp.open('GET', url, true);
 			xmlhttp.send();
 		}
 
 		function convertToTable(output) {
-			var html = "";
-			var column = output.split(",");
+			var html = '';
+			var column = output.split(',');
 			for (var i = 0; i < column.length - 1; i++) {
-				var pair = column[i].split(":");
-				html += "<b>";
+				var pair = column[i].split(':');
+				html += '<b>';
 				html += pair[0];
-				html += "</b>";
-				html += ": ";
+				html += '</b>';
+				html += ': ';
 				html += pair[1];
-				if (i < column.length - 2)	html += ", ";
+				if (i < column.length - 2)	html += ', ';
 			}
 			return html;
 		}
@@ -67,7 +67,7 @@
 				  </span>
 			</div>
 			<br>
-			<div class="form-control" id="response" rows="3"></div>
+			<div class="form-control" id="response"></div>
 		  </div>
 	  </div>
 	  </div>
