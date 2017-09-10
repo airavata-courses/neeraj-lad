@@ -12,7 +12,7 @@ var server = restify.createServer();
 server.listen(7080, function(){
 	console.log('%s listening at %s', server.name, server.url);
 });
-server.get('/?id=:id', respond);
+
 server.get('/:id', respond);
 
 function respond(req, res, next){
@@ -21,10 +21,6 @@ function respond(req, res, next){
 	res.setHeader('content-type', 'application/json');
 	res.writeHead(200);
 
-	/*
-	var par = url.parse(req.url, true).query;
-	var id = par.id;
-	*/
 	var id = req.params.id;
 	var ms1 = 'http://localhost';
 	var port = 8080;
