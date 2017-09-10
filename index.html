@@ -21,9 +21,7 @@
 			var xmlhttp = new XMLHttpRequest();
 			var responseTextArea = document.getElementById('response');
 			xmlhttp.onreadystatechange = function(){
-				console.log(xmlhttp.readyState);
 				if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-					console.log(xmlhttp.responseText);
 					if (xmlhttp.status == 200)	responseTextArea.innerHTML = convertToTable(xmlhttp.responseText);	
 					else if (xmlhttp.status == 400)	responseTextArea.innerHTML = 'Error 400';
 					else	responseTextArea.innerHTML = 'Unexpected error';
