@@ -17,7 +17,7 @@ server.get('/:id', respond);
 
 function respond(req, res, next){
 	res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	res.setHeader('content-type', 'application/json');
 	res.writeHead(200);
 
