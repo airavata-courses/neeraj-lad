@@ -1,2 +1,7 @@
 /node_modules
 .DS_Store
+.pyc
+gateway/node_modules/
+ms1/node_modules/
+ms2/ms2.pyc
+.swp
