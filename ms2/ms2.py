@@ -23,7 +23,7 @@ def send(key, message):
     send_ch = send_conn.channel()
 
     send_ch.exchange_declare(exchange=exchange,
-                             type='topic')
+                             exchange_type='topic')
 
     channel.basic_publish(exchange=exchange,
                           routing_key=key,
