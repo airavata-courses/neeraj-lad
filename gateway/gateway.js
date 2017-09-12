@@ -9,6 +9,9 @@ var request = require('request');
 var url = require('url');
 var amqp = require('amqplib/callback_api');
 
+var exchange = 'gateway_exchange';
+
+var myKey = '#.gw.#';
 var ms1Key = '#.ms1.#';
 var ms2Key = '#.ms2.#';
 var ms3Key = '#.ms3.#';
@@ -42,7 +45,7 @@ function respond(req, res, next){
 function send(key, msg) {
 	amqp.connect('amqp://localhost', function(err, send_conn) {
 	  send_conn.createChannel(function(err, send_ch) {
-		var ex = 'gateway_exchange';
+		var ex = exchange;
 		send_ch.assertExchange(ex, 'topic', {durable: false});
 		send_ch.publish(ex, key, new Buffer(msg));
 		console.log(" [x] Sent %s:'%s'", key, msg);
@@ -53,12 +56,11 @@ function send(key, msg) {
 
 amqp.connect('amqp://localhost', function(err, conn) {
 	conn.createChannel(function(err, ch) {
-		var ex = 'gateway_exchange';
+		var ex = exchange;
 		ch.assertExchange(ex, 'topic', {durable: false});
 		ch.assertQueue('', {exclusive: true}, function(err, q) {
 			console.log(' [*] Waiting for messages. To exit press CTRL + C');
-			var key = '#.gw.#';
-			ch.bindQueue(q.queue, ex, key);
+			ch.bindQueue(q.queue, ex, myKey);
 			ch.consume(q.queue, function(message) {
 				console.log(' [x] Received %s: %s', message.fields.routingKey, message.content.toString());
 			}, {noAck: true});
