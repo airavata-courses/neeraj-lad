@@ -8,7 +8,7 @@
 """
 
 from flask import Flask
-import urllib.request
+from urllib import urlopen
 
 app = Flask(__name__)
 @app.route('/<int:id>/')
@@ -17,6 +17,6 @@ def get_row(id):
     port = 9080
     path = 'ms3.php?id=%d' % id
     url = ms3 + ':' + str(port) + '/' + path
-    with urllib.request.urlopen(url) as u:
-        s = u.read()
+    u = urlopen(url)
+    s = u.read()
     return s
