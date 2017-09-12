@@ -7,29 +7,79 @@
  *
  */
 
-$id = $_GET['id'];
+require_once __DIR__ . '/vendor/autoload.php';
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
-$servername = '127.0.0.1';
+$exchange = 'gateway_exchange';
 
-//Add your MySQL credentials here
-$username = 'root';
-$password = 'admin';
-$dbname = 'sga-neeraj-lad-asgn1';
+$myKey = '#.ms3.#';
+$gwKey = '#.gw.#';
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connection_error)	die('Connection Failed: '.$conn->connect_error);
+function getDBRow($id) {
+	$servername = '127.0.0.1';
 
-$sql = "SELECT * FROM `Movies` WHERE `Rank` = ".$id;
-$res = $conn->query($sql) or die(mysql_error());
+	//Add your MySQL credentials here
+	$username = '';
+	$password = '';
+	$dbname = 'sga-neeraj-lad-asgn1';
 
-$result = "";
-while ($row = $res->fetch_assoc()) {
-	foreach($row as $key => $value) {
-		$result .= $key;
-		$result .= ":";
-		$result .= $value;
-		$result .= ", ";	
+	$conn = new mysqli($servername, $username, $password, $dbname);
+	if ($conn->connection_error)	die('Connection Failed: '.$conn->connect_error);
+
+	$sql = "SELECT * FROM `Movies` WHERE `Rank` = ".$id;
+	$res = $conn->query($sql) or die(mysql_error());
+
+	$result = "";
+	while ($row = $res->fetch_assoc()) {
+		foreach($row as $key => $value) {
+			$result .= $key;
+			$result .= ":";
+			$result .= $value;
+			$result .= ", ";
+		}
 	}
+	echo $result;
 }
-echo $result;
+
+function send($key, $msg) {
+	$send_conn = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+	$send_ch= $send_conn->channel();
+
+	$send_ch->exchange_declare($exchange, 'topic', false, false, false);
+
+	$routing_key = $key
+	$send_ch->basic_publish($msg, $exchange, $routing_key);
+
+	echo " [x] Sent ",$routing_key,':',$msg," \n";
+
+	$send_ch->close();
+	$send_conn->close();
+}
+
+$connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+$channel = $connection->channel();
+
+$channel->exchange_declare($exchange, 'topic', false, false, false);
+
+list($queue_name, ,) = $channel->queue_declare("", false, false, true, false);
+
+$binding_key = $myKey;
+$channel->queue_bind($queue_name, $exchange, $binding_key);
+
+echo ' [*] Waiting for logs. To exit press CTRL+C', "\n";
+
+$callback = function($msg){
+  echo ' [x] ',$msg->delivery_info['routing_key'], ':', $msg->body, "\n";
+};
+
+$channel->basic_consume($queue_name, '', false, true, false, false, $callback);
+
+while(count($channel->callbacks)) {
+    $channel->wait();
+}
+
+$channel->close();
+$connection->close();
+
 ?>
