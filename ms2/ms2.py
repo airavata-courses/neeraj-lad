@@ -17,6 +17,12 @@ myKey = '#.ms2.#'
 gwKey = '#.gw.#'
 
 app = Flask(__name__)
+@app.route('/')
+def index():
+    receive()
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 def send(key, message):
     send_conn = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
@@ -25,33 +31,33 @@ def send(key, message):
     send_ch.exchange_declare(exchange=exchange,
                              exchange_type='topic')
 
-    channel.basic_publish(exchange=exchange,
+    send_ch.basic_publish(exchange=exchange,
                           routing_key=key,
                           body=message)
     print(" [x] Sent %r:%r" % (key, message))
-    connection.close()
+    send_conn.close()
 
+def receive():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+    channel.exchange_declare(exchange=exchange,
+                             exchange_type='topic')
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-channel = connection.channel()
-channel.exchange_declare(exchange=exchange,
-                         exchange_type='topic')
+    result = channel.queue_declare(exclusive=True)
+    queue_name = result.method.queue
 
-result = channel.queue_declare(exclusive=True)
-queue_name = result.method.queue
+    binding_key = myKey
+    channel.queue_bind(exchange=exchange,
+                       queue=queue_name,
+                       routing_key=binding_key)
 
-binding_key = myKey
-channel.queue_bind(exchange=exchange,
-                   queue=queue_name,
-                   routing_key=binding_key)
+    print(' [*] Waiting for messages. To exit press CTRL+C')
 
-print(' [*] Waiting for messages. To exit press CTRL+C')
+    def callback(ch, method, properties, body):
+        print(" [x] Received %r:%r" % (method.routing_key, body))
+        send(gwKey, body)
 
-def callback(ch, method, properties, body):
-    print(" [x] Received %r:%r" % (method.routing_key, body))
-    send(gwKey, body)
-
-channel.basic_consume(callback,
-                      queue=queue_name,
-                      no_ack=True)
-channel.start_consuming()
+    channel.basic_consume(callback,
+                          queue=queue_name,
+                          no_ack=True)
+    channel.start_consuming()
