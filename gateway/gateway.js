@@ -11,10 +11,12 @@ var amqp = require('amqplib/callback_api');
 
 var exchange = 'gateway_exchange';
 
+var myName = 'gw';
+
 var myKey = '#.gw.#';
-var ms1Key = '#.ms1.#';
-var ms2Key = '#.ms2.#';
-var ms3Key = '#.ms3.#';
+var ms1Key = 'ms1';
+var ms2Key = 'ms2';
+var ms3Key = 'ms3';
 
 var server = restify.createServer();
 server.listen(7080, function(){
@@ -26,7 +28,7 @@ server.get('/:id', respond);
 function respond(req, res, next){
 	var id = req.params.id;
 
-	send(ms1Key, id, function(error, ms1ResID) {
+	send(ms1Key, id, function(error) {
 		send(ms2Key, ms1ResID, function(error, ms2ResID) {
 			send(ms3Key, ms2ResID, function(error, DBRow) {
 				//call to respond
@@ -50,7 +52,7 @@ function send(key, msg) {
 		send_ch.publish(ex, key, new Buffer(msg));
 		console.log(" [x] Sent %s:'%s'", key, msg);
 	  });
-	  setTimeout(function() { send_conn.close(); process.exit(0) }, 500);
+	  setTimeout(function() { send_conn.close();}, 500);
 	});
 }
 
@@ -63,6 +65,9 @@ amqp.connect('amqp://localhost', function(err, conn) {
 			ch.bindQueue(q.queue, ex, myKey);
 			ch.consume(q.queue, function(message) {
 				console.log(' [x] Received %s: %s', message.fields.routingKey, message.content.toString());
+				var routingKey = message.fields.routingKey;
+				var message = message.content.toString();
+				if (routingKey === 'Response-from-microservice1-to-.' + myName)		send(ms2Key, message);
 			}, {noAck: true});
 		});
 	});
