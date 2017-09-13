@@ -7,22 +7,12 @@
  */
 """
 
-from flask import Flask
-from urllib import urlopen
 import pika
 
 exchange = 'gateway_exchange'
 
 myKey = '#.ms2.#'
 gwKey = '#.gw.#'
-
-app = Flask(__name__)
-@app.route('/')
-def index():
-    receive()
-
-if __name__ == "__main__":
-    app.run(debug=True)
 
 def send(key, message):
     send_conn = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
@@ -61,3 +51,6 @@ def receive():
                           queue=queue_name,
                           no_ack=True)
     channel.start_consuming()
+
+if __name__ == "__main__":
+    receive()
