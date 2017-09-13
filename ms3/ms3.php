@@ -17,15 +17,22 @@ $myName = 'microservice3';
 $myKey = '#.ms3.#';
 $gwKey = 'gw';
 
+function dBConnect() {
+	static $conn;
+	if (!isset($conn)) {
+		$config = parse_ini_file('./config.ini');
+		$conn = mysqli_connect($config['servername'], $config['username'], $config['password'], $config['dbname']);
+	}
+
+    // If connection was not successful, handle the error
+    if($conn === false) {
+        return mysqli_connect_error();
+    }
+    return $conn;
+}
+
 function getDBRow($id) {
-	$servername = '127.0.0.1';
-
-	//Add your MySQL credentials here
-	$username = '';
-	$password = '';
-	$dbname = 'sga-neeraj-lad-asgn1';
-
-	$conn = new mysqli($servername, $username, $password, $dbname);
+	$conn = dBConnect();
 	if ($conn->connection_error)	die('Connection Failed: '.$conn->connect_error);
 
 	$sql = "SELECT * FROM `Movies` WHERE `Rank` = ".$id;
@@ -40,7 +47,7 @@ function getDBRow($id) {
 			$result .= ", ";
 		}
 	}
-	echo $result;
+	return $result."\n";
 }
 
 function send($key, $data) {
@@ -78,7 +85,8 @@ $callback = function($msg){
 	global $myName;
 	global $gwKey;
 	echo ' [x] Received ',$msg->delivery_info['routing_key'], ':', $msg->body, "\n";
-	send('Response-from-'.$myName.'-to-.'.$gwKey, $msg->body);
+	$dBRow = getDBRow($msg->body);
+	send('Response-from-'.$myName.'-to-.'.$gwKey, $dBRow);
 };
 
 $channel->basic_consume($queue_name, '', false, true, false, false, $callback);
