@@ -6,7 +6,7 @@ This app takes an integer between 1 and 10 inclusive, and returns the correspond
 
 ## To do
 --------
-- [ ] Add message broker
+- [x] Add message broker
 - [ ] Add automation server
 - [ ] Deploy it on Jetstream
 - [ ] Dockerize and redeploy
