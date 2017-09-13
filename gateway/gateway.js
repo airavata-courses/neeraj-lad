@@ -27,19 +27,13 @@ server.get('/:id', respond);
 
 function respond(req, res, next){
 	var id = req.params.id;
+	send(ms1Key, id);
 
-	send(ms1Key, id, function(error) {
-		send(ms2Key, ms1ResID, function(error, ms2ResID) {
-			send(ms3Key, ms2ResID, function(error, DBRow) {
-				//call to respond
-			});
-		});
-	});
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Headers", "X-Requested-With");
+	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Headers', 'X-Requested-With');
 	res.setHeader('content-type', 'application/json');
 	res.writeHead(200);
-	//res.write -> DBRow
+	res.write('Done')
 	res.end();
 	return next();
 }
@@ -69,6 +63,7 @@ amqp.connect('amqp://localhost', function(err, conn) {
 				var message = message.content.toString();
 				if (routingKey === 'Response-from-microservice1-to-.' + myName)		send(ms2Key, message);
 				if (routingKey === 'Response-from-microservice2-to-.' + myName)		send(ms3Key, message);
+				//if (routingKey === 'Response-from-microservice3-to-.' + myName)		//send response to client 
 			}, {noAck: true});
 		});
 	});
