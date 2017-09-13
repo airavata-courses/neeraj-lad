@@ -18,6 +18,8 @@ var ms1Key = 'ms1';
 var ms2Key = 'ms2';
 var ms3Key = 'ms3';
 
+var curReq, curRes, curNext;
+
 var server = restify.createServer();
 server.listen(7080, function(){
 	console.log('%s listening at %s', server.name, server.url);
@@ -25,17 +27,22 @@ server.listen(7080, function(){
 
 server.get('/:id', respond);
 
+function sendResponseToClient(dBRow) {
+	curRes.header('Access-Control-Allow-Origin', '*');
+	curRes.header('Access-Control-Allow-Headers', 'X-Requested-With');
+	curRes.setHeader('content-type', 'application/json');
+	curRes.writeHead(200);
+	curRes.write(dBRow)
+	curRes.end();
+	return curNext();
+}
+
 function respond(req, res, next){
+	curReq = req;
+	curRes = res;
+	curNext = next;
 	var id = req.params.id;
 	send(ms1Key, id);
-
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Headers', 'X-Requested-With');
-	res.setHeader('content-type', 'application/json');
-	res.writeHead(200);
-	res.write('Done')
-	res.end();
-	return next();
 }
 
 function send(key, msg) {
@@ -63,7 +70,7 @@ amqp.connect('amqp://localhost', function(err, conn) {
 				var message = message.content.toString();
 				if (routingKey === 'Response-from-microservice1-to-.' + myName)		send(ms2Key, message);
 				if (routingKey === 'Response-from-microservice2-to-.' + myName)		send(ms3Key, message);
-				//if (routingKey === 'Response-from-microservice3-to-.' + myName)		//send response to client 
+				if (routingKey === 'Response-from-microservice3-to-.' + myName)		sendResponseToClient(message);
 			}, {noAck: true});
 		});
 	});
