@@ -68,6 +68,7 @@ amqp.connect('amqp://localhost', function(err, conn) {
 				var routingKey = message.fields.routingKey;
 				var message = message.content.toString();
 				if (routingKey === 'Response-from-microservice1-to-.' + myName)		send(ms2Key, message);
+				if (routingKey === 'Response-from-microservice2-to-.' + myName)		send(ms3Key, message);
 			}, {noAck: true});
 		});
 	});

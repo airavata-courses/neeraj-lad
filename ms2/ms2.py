@@ -11,8 +11,10 @@ import pika
 
 exchange = 'gateway_exchange'
 
+myName = 'microservice2'
+
 myKey = '#.ms2.#'
-gwKey = '#.gw.#'
+gwKey = 'gw'
 
 def send(key, message):
     send_conn = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
@@ -45,7 +47,7 @@ def receive():
 
     def callback(ch, method, properties, body):
         print(" [x] Received %r:%r" % (method.routing_key, body))
-        send(gwKey, body)
+        send('Response-from-' + myName + '-to-.' + gwKey, body)
 
     channel.basic_consume(callback,
                           queue=queue_name,
