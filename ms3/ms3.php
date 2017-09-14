@@ -12,6 +12,8 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 $exchange = 'gateway_exchange';
 
+$hostname = 'rabbitmq';
+
 $myName = 'microservice3';
 
 $myKey = '#.ms3.#';
@@ -52,8 +54,10 @@ function getDBRow($id) {
 
 function send($key, $data) {
 	global $exchange;
+	global $hostname;
+	global $myName;
 	
-	$send_conn = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+	$send_conn = new AMQPStreamConnection($hostname, 5672, 'guest', 'guest');
 	$send_ch= $send_conn->channel();
 
 	$exchange = 'gateway_exchange';
@@ -63,13 +67,13 @@ function send($key, $data) {
 	$msg = new AMQPMessage($data);
 	$send_ch->basic_publish($msg, $exchange, $routing_key);
 
-	echo " [x] Sent ",$routing_key,':',$data," \n";
+	echo " [x] '.$myName.' sent ",$routing_key,':',$data," \n";
 
 	$send_ch->close();
 	$send_conn->close();
 }
 
-$connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+$connection = new AMQPStreamConnection($hostname, 5672, 'guest', 'guest');
 $channel = $connection->channel();
 
 $channel->exchange_declare($exchange, 'topic', false, false, false);
@@ -79,14 +83,14 @@ list($queue_name, ,) = $channel->queue_declare("", false, false, true, false);
 $binding_key = $myKey;
 $channel->queue_bind($queue_name, $exchange, $binding_key);
 
-echo ' [*] Waiting for logs. To exit press CTRL+C', "\n";
+echo ' [*] '.$myName.' waiting for logs. To exit press CTRL+C', "\n";
 
 $callback = function($msg){
 	global $myName;
 	global $gwKey;
-	echo ' [x] Received ',$msg->delivery_info['routing_key'], ':', $msg->body, "\n";
-	$dBRow = getDBRow($msg->body);
-	send('Response-from-'.$myName.'-to-.'.$gwKey, $dBRow);
+	echo ' [x] '.$myName.' received ',$msg->delivery_info['routing_key'], ':', $msg->body, "\n";
+	//$dBRow = getDBRow($msg->body);
+	send('Response-from-'.$myName.'-to-.'.$gwKey, $msg->body);
 };
 
 $channel->basic_consume($queue_name, '', false, true, false, false, $callback);
