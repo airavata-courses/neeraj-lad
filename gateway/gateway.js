@@ -9,6 +9,8 @@ var request = require('request');
 var url = require('url');
 var amqp = require('amqplib/callback_api');
 
+var hostname = 'rabbitmq';
+
 var exchange = 'gateway_exchange';
 
 var myName = 'gw';
@@ -46,7 +48,7 @@ function respond(req, res, next){
 }
 
 function send(key, msg) {
-	amqp.connect('amqp://localhost', function(err, send_conn) {
+	amqp.connect('amqp://' + hostname, function(err, send_conn) {
 	  send_conn.createChannel(function(err, send_ch) {
 		var ex = exchange;
 		send_ch.assertExchange(ex, 'topic', {durable: false});
@@ -57,7 +59,7 @@ function send(key, msg) {
 	});
 }
 
-amqp.connect('amqp://localhost', function(err, conn) {
+amqp.connect('amqp://' + hostname, function(err, conn) {
 	conn.createChannel(function(err, ch) {
 		var ex = exchange;
 		ch.assertExchange(ex, 'topic', {durable: false});

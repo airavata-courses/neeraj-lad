@@ -11,13 +11,15 @@ import pika
 
 exchange = 'gateway_exchange'
 
+hostname = 'rabbitmq'
+
 myName = 'microservice2'
 
 myKey = '#.ms2.#'
 gwKey = 'gw'
 
 def send(key, message):
-    send_conn = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    send_conn = pika.BlockingConnection(pika.ConnectionParameters(host=hostname))
     send_ch = send_conn.channel()
 
     send_ch.exchange_declare(exchange=exchange,
@@ -26,11 +28,11 @@ def send(key, message):
     send_ch.basic_publish(exchange=exchange,
                           routing_key=key,
                           body=message)
-    print(" [x] Sent %r:%r" % (key, message))
+    print(" [x] %r sent %r:%r" % (myName, key, message))
     send_conn.close()
 
 def receive():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=hostname))
     channel = connection.channel()
     channel.exchange_declare(exchange=exchange,
                              exchange_type='topic')
@@ -43,10 +45,10 @@ def receive():
                        queue=queue_name,
                        routing_key=binding_key)
 
-    print(' [*] Waiting for messages. To exit press CTRL+C')
+    print(' [*] %r waiting for messages. To exit press CTRL+C' % myName)
 
     def callback(ch, method, properties, body):
-        print(" [x] Received %r:%r" % (method.routing_key, body))
+        print(" [x] %r received %r:%r" % (myName, method.routing_key, body))
         send('Response-from-' + myName + '-to-.' + gwKey, body)
 
     channel.basic_consume(callback,
