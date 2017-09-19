@@ -21,10 +21,10 @@
 			var xmlhttp = new XMLHttpRequest();
 			var responseTextArea = document.getElementById('response');
 			xmlhttp.onreadystatechange = function(){
-				console.log(xmlhttp.readyState);
+				//console.log(xmlhttp.readyState);
 				if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-					console.log(xmlhttp.responseText);
-					if (xmlhttp.status == 200)	responseTextArea.innerHTML = convertToTable(xmlhttp.responseText);	
+					console.log('Response from GW: ' + xmlhttp.responseText);
+					if (xmlhttp.status == 200)	responseTextArea.innerHTML = xmlhttp.responseText;
 					else if (xmlhttp.status == 400)	responseTextArea.innerHTML = 'Error 400';
 					else	responseTextArea.innerHTML = 'Unexpected error';
 				}
@@ -58,6 +58,7 @@
       <div class="jumbotron">
         <h1 class="display-3">IMDB Top 10</h1>
 		<p>Enter any number <i>'i'</i> between 1 and 10 inclusive. This app retrieves information like Rating, Name and Number of Reviews for the movie ranked <i>'i'</i> in the IMDB Top 10 list.</p>
+		<b>NOTE:</b><p>The MySQL micro-service is currently down. Consequently the service responds back with the same number as the request id<p>
 		<div class="row">
 		  <div class="col-lg-6">
 			<div class="input-group">

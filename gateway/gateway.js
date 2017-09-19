@@ -29,12 +29,12 @@ server.listen(7080, function(){
 
 server.get('/:id', respond);
 
-function sendResponseToClient(dBRow) {
+function sendResponseToClient(msg) {
 	curRes.header('Access-Control-Allow-Origin', '*');
 	curRes.header('Access-Control-Allow-Headers', 'X-Requested-With');
 	curRes.setHeader('content-type', 'application/json');
 	curRes.writeHead(200);
-	curRes.write(dBRow)
+	curRes.write(msg)
 	curRes.end();
 	return curNext();
 }
