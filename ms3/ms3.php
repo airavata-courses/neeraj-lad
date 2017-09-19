@@ -22,11 +22,10 @@ $gwKey = 'gw';
 function dBConnect() {
 	static $conn;
 	if (!isset($conn)) {
-		$config = parse_ini_file('./config.ini');
+		$config = parse_ini_file('config.ini');
 		$conn = mysqli_connect($config['servername'], $config['username'], $config['password'], $config['dbname']);
 	}
 
-    // If connection was not successful, handle the error
     if($conn === false) {
         return mysqli_connect_error();
     }
@@ -35,7 +34,7 @@ function dBConnect() {
 
 function getDBRow($id) {
 	$conn = dBConnect();
-	if ($conn->connection_error)	die('Connection Failed: '.$conn->connect_error);
+	if ($conn->connect_error)	die('Connection Failed: '.$conn->connect_error);
 
 	$sql = "SELECT * FROM `Movies` WHERE `Rank` = ".$id;
 	$res = $conn->query($sql) or die(mysql_error());
