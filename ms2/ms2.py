@@ -20,3 +20,6 @@ def get_row(id):
     with urllib.request.urlopen(url) as u:
         s = u.read()
     return s
+
+if __name__ == '__main__':
+    app.run(debug=True)

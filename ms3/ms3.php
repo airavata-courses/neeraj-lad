@@ -17,7 +17,7 @@ $password = 'admin';
 $dbname = 'sga-neeraj-lad-asgn1';
 
 $conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connection_error)	die('Connection Failed: '.$conn->connect_error);
+if ($conn->connect_error)	die('Connection Failed: '.$conn->connect_error);
 
 $sql = "SELECT * FROM `Movies` WHERE `Rank` = ".$id;
 $res = $conn->query($sql) or die(mysql_error());
